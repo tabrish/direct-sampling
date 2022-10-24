@@ -23,8 +23,7 @@ def uniform_spanning_tree(graph: nx.Graph):
             if next_vtx in path: 
                 i = path.index(next_vtx) 
                 path = path[:i]
-            else:
-                path.append(next_vtx)
+            path.append(next_vtx)
             current_vtx = next_vtx
         for i in range(len(path)-1): 
             ust.add_edge(path[i], path[i+1]) 
