@@ -8,8 +8,12 @@ import numpy as np
 import pandoc
 import random
 
-#return a uniform spanning tree
+#==========================================================
+#Below are methods to generate ensembles
+
+#a function to return a uniform spanning tree
 def uniform_spanning_tree(graph: nx.Graph): 
+    'Returns a uniform spanning tree of graph'
     unvisited_vertices = list(graph.nodes())
     ust = nx.create_empty_copy(graph)
     first_vtx = random.sample(unvisited_vertices, 1)[0]
@@ -30,10 +34,6 @@ def uniform_spanning_tree(graph: nx.Graph):
             unvisited_vertices.remove(path[i])
     return ust
 
-#count number of spanning trees of a graph
-def num_spanning_trees(graph:nx.Graph): 
-    return np.round(np.prod(nx.laplacian_spectrum(graph)[1:])/nx.number_of_nodes(graph))
-
 #a function to generate ensembles for a given graph
 def generate_ensemble(graph: nx.Graph, 
                       key: Hashable, 
@@ -41,6 +41,7 @@ def generate_ensemble(graph: nx.Graph,
                       lower: float, 
                       upper: float, 
                       size: int):
+    'Returns an ensemble of balanced partitions of graph. "key" is the weight key for the vertices, "parts" is the number of parts, "lower" and "upper" are the lower and upper bounds of the weight of each part, and "size" is the number of uniform spanning trees whose partitions are added to the ensemble. (Note that size is NOT the number of partitions in the ensemble).'
     ensemble = []
     for i in range(size): 
         tree = uniform_spanning_tree(graph)
@@ -48,3 +49,30 @@ def generate_ensemble(graph: nx.Graph,
         for part in partitions: 
             ensemble.append(Partition(graph, part))
     return ensemble
+
+#==========================================================
+#Below are methods to analyze the ensembles generated 
+
+#count number of spanning trees of a graph
+def lognum_spanning_trees(graph:nx.Graph): 
+    'Returns the log of the number of spanning trees of graph'
+    return np.sum(np.log(nx.laplacian_spectrum(graph)[1:])) - np.log(nx.number_of_nodes(graph))
+
+#find the quotient graph of a partition 
+def quotient_graph(partition:gc.Partition): 
+    'Returns the quotient graph of partition: the graph with vertex set partition.parts and edges between parts A and B if there exists an edge of the graph with one end in A and one end in B. The edges of the quotient graph are weighted by the number of edges of the graph with one end in A and one end in B.'
+    quot = nx.MultiGraph()
+    for edge in partition.graph.edges(): 
+        u = edge[0]
+        v = edge[1]
+        quot.add_edge(partition.assignment[u], partition.assignment[v])
+    return quot
+
+#find the log of the probability of sampling a partition
+def log_prob(partition:gc.Partition): 
+    pr = 0
+    for comp in partition.subgraphs:
+        pr += lognum_spanning_trees(comp)
+    quotient = quotient_graph(partition)
+    pr += lognum_spanning_trees(quotient)
+    return pr - lognum_spanning_trees(graph)
