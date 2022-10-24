@@ -76,4 +76,4 @@ def log_prob(partition:gc.Partition):
         pr += lognum_spanning_trees(comp)
     quotient = quotient_graph(partition)
     pr += lognum_spanning_trees(quotient)
-    return pr - lognum_spanning_trees(graph)
+    return pr - lognum_spanning_trees(partition.graph)
