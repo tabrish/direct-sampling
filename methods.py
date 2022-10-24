@@ -70,6 +70,7 @@ def quotient_graph(partition:gc.Partition):
 
 #find the log of the probability of sampling a partition
 def log_prob(partition:gc.Partition): 
+    'Returns the log probability of sampling partition'
     pr = 0
     for comp in partition.subgraphs:
         pr += lognum_spanning_trees(comp)
