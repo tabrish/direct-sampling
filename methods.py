@@ -44,7 +44,7 @@ def generate_ensemble(graph: nx.Graph,
                       size: int):
     ensemble = []
     for i in range(size): 
-        tree = random_spanning_tree(graph)
+        tree = uniform_spanning_tree(graph)
         partitions = partition_all(tree, key, parts, lower, upper)
         for part in partitions: 
             ensemble.append(Partition(graph, part))
